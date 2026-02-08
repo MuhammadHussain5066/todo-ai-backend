@@ -11,18 +11,18 @@ app = FastAPI(
     version="0.1.0"
 )
 
-# CORS middleware - Allow frontend to connect
+# CORS middleware - Allow production frontend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:8080",
-        "https://todo-ai-frontend-one.vercel.app"
+        "https://todo-ai-frontend-one.vercel.app",
+        "*"  # Temporary - allow all for testing
     ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 @app.on_event("startup")
 async def on_startup():
@@ -36,5 +36,4 @@ async def root():
 app.include_router(chat_router)
 app.include_router(task_router)
 app.include_router(ai_router)
-
 
