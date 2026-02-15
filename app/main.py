@@ -1,3 +1,5 @@
+from app.routers.events import router as events_router
+from app.models.event import TaskEvent
 from app.routers.chat.router import router as chat_router
 from app.routers.ai import router as ai_router
 from fastapi import FastAPI
@@ -36,4 +38,4 @@ async def root():
 app.include_router(chat_router)
 app.include_router(task_router)
 app.include_router(ai_router)
-
+app.include_router(events_router)

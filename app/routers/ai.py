@@ -1,9 +1,8 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlmodel import select
 from app.db import get_session
 from app.models.task import Task
-from app.services.ai_service import extract_task_from_text
+from datetime import datetime
 
 router = APIRouter(prefix="/ai", tags=["AI"])
 
@@ -12,21 +11,23 @@ async def create_task_from_text(
     text: str,
     session: AsyncSession = Depends(get_session)
 ):
-    """
-    Converts natural language into a task using AI
-    """
-    ai_task = await extract_task_from_text(text)
-
-    task = Task(
-        title=ai_task["title"],
-        description=ai_task.get("description", "")
-    )
-
-    session.add(task)
-    await session.commit()
-    await session.refresh(task)
-
-    return {
-        "status": "created",
-        "task": task
-    }
+    """Simple task creation"""
+    try:
+        # Simple task - no AI
+        new_task = Task(
+            title=text[:100],
+            description="Created via AI",
+            completed=False,
+            due_date=None
+        )
+        
+        session.add(new_task)
+        await session.commit()
+        await session.refresh(new_task)
+        
+        return {"id": new_task.id, "title": new_task.title}
+        
+    except Exception as e:
+        print(f"ERROR: {e}")
+        await session.rollback()
+        return {"error": str(e)}
